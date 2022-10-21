@@ -22,10 +22,11 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ inputs.JAVA_VERSION }}
-        env:          
-          DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
-          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}  
       - name: Change wrapper permissions
         run: chmod +x ./gradlew          
       - name: publish 
+        env:          
+          DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
+          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}  
         run: ./gradlew publish          
+        
