@@ -1,0 +1,21 @@
+name: Common Dependencies Workflow
+
+on:
+  workflow_call:
+    inputs:
+      JAVA_VERSION:
+        type: string
+        default: "17.0.1"
+jobs:
+  publish-artifacts:
+    name: Publish Artifacts
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: ${{ inputs.JAVA_VERSION }}
+      - name: publish 
+        run: ./gradlew publish          
