@@ -27,6 +27,7 @@ jobs:
           java-version: ${{ inputs.JAVA_VERSION }}
       - name: Change wrapper permissions
         run: chmod +x ./gradlew   
+      - name: test and sonarqube        
         env:          
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
           DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}  
@@ -46,6 +47,7 @@ jobs:
           java-version: ${{ inputs.JAVA_VERSION }}
       - name: Change wrapper permissions
         run: chmod +x ./gradlew   
+      - name: build
         env:          
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
           DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}  
