@@ -17,5 +17,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: ${{ inputs.JAVA_VERSION }}
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew          
       - name: publish 
         run: ./gradlew publish          
