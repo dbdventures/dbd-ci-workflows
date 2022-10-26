@@ -1,0 +1,69 @@
+name: Frontend Workflow
+
+on:
+  workflow_call:
+    inputs:
+      SERVICE_NAME:
+        type: string
+      SERVICE_VERSION:
+        type: string
+    secrets:
+      DBD_ARTIFACTORY_USER:
+        required: true
+      DBD_ARTIFACTORY_PASSWORD:
+        required: true
+      DBD_ARTIFACTORY_NAME:
+        required: true
+      # SONAR_TOKEN:
+      #   required: true
+jobs:
+
+  # test:
+  #   name: test
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - uses: actions/checkout@v1
+  #     - name: Set up JDK
+  #       uses: actions/setup-java@v1
+  #       with:
+  #         java-version: ${{ inputs.JAVA_VERSION }}
+  #     - name: Change wrapper permissions
+  #       run: chmod +x ./gradlew   
+  #     - name: test and sonarqube        
+  #       env:          
+  #         DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
+  #         DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}  
+  #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  
+  #       run: ./gradlew test sonarqube
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    # needs: [ "test"]
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: build
+        env:          
+          DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
+          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
+          DBD_ARTIFACTORY_NAME: ${{ secrets.DBD_ARTIFACTORY_NAME }}
+          SERVICE_NAME: ${{ SERVICE_NAME }}
+          SERVICE_VERSION: ${{ SERVICE_VERSION }}
+        run: echo docker build -t ${{ DBD_ARTIFACTORY_NAME }}/${{ SERVICE_NAME }}:${{ SERVICE_VERSION }} .
+
+  publish-artifacts:
+    name: Publish Artifacts
+    runs-on: ubuntu-latest
+    needs: [ "build"]
+
+    steps:
+      - name: publish 
+        env:          
+          DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
+          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
+          DBD_ARTIFACTORY_NAME: ${{ secrets.DBD_ARTIFACTORY_NAME }}
+          SERVICE_NAME: ${{ SERVICE_NAME }}
+          SERVICE_VERSION: ${{ SERVICE_VERSION }}
+        run: echo docker push ${{ DBD_ARTIFACTORY_NAME }}/${{ SERVICE_NAME }}:${{ SERVICE_VERSION }}    
