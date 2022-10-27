@@ -14,8 +14,8 @@ on:
         required: true
       DBD_ARTIFACTORY_ADDRESS:
         required: true
-      # SONAR_TOKEN:
-      #   required: true
+      SONAR_TOKEN:
+        required: true
 jobs:
 
   # test:
@@ -24,18 +24,12 @@ jobs:
 
   #   steps:
   #     - uses: actions/checkout@v1
-  #     - name: Set up JDK
-  #       uses: actions/setup-java@v1
-  #       with:
-  #         java-version: ${{ inputs.JAVA_VERSION }}
-  #     - name: Change wrapper permissions
-  #       run: chmod +x ./gradlew   
   #     - name: test and sonarqube        
   #       env:          
   #         DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
   #         DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}  
   #         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  
-  #       run: ./gradlew test sonarqube
+  #       run: 
 
   build:
     name: build
@@ -51,7 +45,8 @@ jobs:
           DBD_ARTIFACTORY_ADDRESS: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}
           SERVICE_NAME: ${{ SERVICE_NAME }}
           SERVICE_VERSION: ${{ SERVICE_VERSION }}
-        run: echo docker build -t ${{ DBD_ARTIFACTORY_ADDRESS }}/${{ SERVICE_NAME }}:${{ SERVICE_VERSION }} .
+        run: echo SERVICE_NAME ${{ SERVICE_NAME }} ; ERVICE_VERSION ${{ SERVICE_VERSION }}
+        # run: echo docker build -t ${{ DBD_ARTIFACTORY_ADDRESS }}/${{ SERVICE_NAME }}:${{ SERVICE_VERSION }} .
 
   publish-artifacts:
     name: Publish Artifacts
