@@ -43,8 +43,8 @@ jobs:
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
           DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
           DBD_ARTIFACTORY_ADDRESS: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}
-          SERVICE_NAME: ${{ SERVICE_NAME }}
-          SERVICE_VERSION: ${{ SERVICE_VERSION }}
+          SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
+          SERVICE_VERSION: ${{ inputs.SERVICE_VERSION }}
         run: echo SERVICE_NAME ${{ SERVICE_NAME }} ; ERVICE_VERSION ${{ SERVICE_VERSION }}
         # run: echo docker build -t ${{ DBD_ARTIFACTORY_ADDRESS }}/${{ SERVICE_NAME }}:${{ SERVICE_VERSION }} .
 
@@ -59,6 +59,6 @@ jobs:
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
           DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
           DBD_ARTIFACTORY_ADDRESS: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}
-          SERVICE_NAME: ${{ SERVICE_NAME }}
-          SERVICE_VERSION: ${{ SERVICE_VERSION }}
+          SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
+          SERVICE_VERSION: ${{ inputs.SERVICE_VERSION }}
         run: echo docker push ${{ DBD_ARTIFACTORY_ADDRESS }}/${{ SERVICE_NAME }}:${{ SERVICE_VERSION }}    
