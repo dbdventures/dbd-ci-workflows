@@ -45,7 +45,7 @@ jobs:
           DBD_ARTIFACTORY_ADDRESS: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}
           SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
           SERVICE_VERSION: ${{ inputs.SERVICE_VERSION }}
-        run: echo SERVICE_NAME ${{ SERVICE_NAME }} ; ERVICE_VERSION ${{ SERVICE_VERSION }}
+        run: echo SERVICE_NAME ${SERVICE_NAME} ; SERVICE_VERSION ${SERVICE_VERSION}
         # run: echo docker build -t ${{ DBD_ARTIFACTORY_ADDRESS }}/${{ SERVICE_NAME }}:${{ SERVICE_VERSION }} .
 
   publish-artifacts:
@@ -61,4 +61,4 @@ jobs:
           DBD_ARTIFACTORY_ADDRESS: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}
           SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
           SERVICE_VERSION: ${{ inputs.SERVICE_VERSION }}
-        run: echo docker push ${{ DBD_ARTIFACTORY_ADDRESS }}/${{ SERVICE_NAME }}:${{ SERVICE_VERSION }}    
+        run: echo docker push ${DBD_ARTIFACTORY_ADDRESS}/${SERVICE_NAME}:${SERVICE_VERSION}    
