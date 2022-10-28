@@ -14,14 +14,11 @@ on:
         required: true
       DBD_ARTIFACTORY_ADDRESS:
         required: true
-      SONAR_TOKEN:
-        required: true
-jobs:
 
+jobs:
   build:
     name: build
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v1
       - uses: xom9ikk/split@v1
