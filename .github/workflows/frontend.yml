@@ -48,11 +48,12 @@ jobs:
         #   DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
         #   DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
         #   DBD_ARTIFACTORY_ADDRESS: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}
-        #   SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
+          SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
         #   SERVICE_VERSION: ${{ inputs.SERVICE_VERSION }}
         # run: echo SERVICE_NAME ${{ inputs.SERVICE_NAME }} SERVICE_VERSION ${{ inputs.SERVICE_VERSION }} IMAGE_TAG ${IMAGE_TAG}
         run: |
-          echo SERVICE_NAME ${{ inputs.SERVICE_NAME }} SERVICE_VERSION ${{ inputs.SERVICE_VERSION }} IMAGE_TAG ${IMAGE_TAG}
+          echo inputs.SERVICE_NAME ${{ inputs.SERVICE_NAME }}
+          echo SERVICE_NAME ${{ SERVICE_NAME }}
           docker build -t ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}/${{ inputs.SERVICE_NAME }}:${IMAGE_TAG} .
 
   # publish-artifacts:
