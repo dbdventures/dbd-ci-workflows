@@ -24,6 +24,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+      - uses: xom9ikk/split@v1
+        id: service
+        with:
+          string: ${{ inputs.SERVICE_NAME }}
+          separator: /
+          limit: -1
       - uses: ASzc/change-string-case-action@v2
         id: tag
         with:
@@ -38,13 +44,15 @@ jobs:
       #     password: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
       - name: Build and push artifact
         env:
+          IMAGE_NAME: ${{ steps.service.outputs._1 }}
           IMAGE_TAG: ${{ steps.tag.outputs.lowercase }}      
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
           DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
           DBD_ARTIFACTORY_ADDRESS: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}
           SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          tags: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}/${{ inputs.SERVICE_NAME }}:${{ env.IMAGE_TAG }}
-          push: false
+        run: echo ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        # uses: docker/build-push-action@v3
+        # with:
+        #   context: .
+        #   tags: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}/${{ inputs.SERVICE_NAME }}:${{ env.IMAGE_TAG }}
+        #   push: false
