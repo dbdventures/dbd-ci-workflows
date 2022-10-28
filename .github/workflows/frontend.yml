@@ -50,9 +50,8 @@ jobs:
           DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
           DBD_ARTIFACTORY_ADDRESS: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}
           SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
-        run: echo ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-        # uses: docker/build-push-action@v3
-        # with:
-        #   context: .
-        #   tags: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}/${{ inputs.SERVICE_NAME }}:${{ env.IMAGE_TAG }}
-        #   push: false
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          tags: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          push: false
