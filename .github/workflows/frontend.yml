@@ -52,8 +52,8 @@ jobs:
         #   SERVICE_VERSION: ${{ inputs.SERVICE_VERSION }}
         run: |
           echo inputs.SERVICE_NAME ${{ inputs.SERVICE_NAME }}
-          echo SERVICE_NAME ${SERVICE_NAME}
-          docker build -t ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}/${{ inputs.SERVICE_NAME }}:${IMAGE_TAG} .
+          echo SERVICE_NAME ${{ env.SERVICE_NAME }}
+          
 
   # publish-artifacts:
   #   name: Publish Artifacts
