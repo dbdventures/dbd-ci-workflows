@@ -47,7 +47,6 @@ jobs:
           DBD_ARTIFACTORY_DOCKER_USER: ${{ secrets.DBD_ARTIFACTORY_DOCKER_USER }}
           DBD_ARTIFACTORY_DOCKER_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_DOCKER_PASSWORD }}
           DBD_ARTIFACTORY_DOCKER_ADDRESS: ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}
-          SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
         uses: docker/build-push-action@v3
         with:
           context: .
