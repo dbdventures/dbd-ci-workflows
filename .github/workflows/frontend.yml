@@ -12,7 +12,7 @@ on:
         required: true
       DBD_ARTIFACTORY_DOCKER_PASSWORD:
         required: true
-      DBD_ARTIFACTORY_ADDRESS:
+      DBD_ARTIFACTORY_DOCKER_ADDRESS:
         required: true
 
 jobs:
@@ -36,7 +36,7 @@ jobs:
       - name: Login to Artifactory
         uses: docker/login-action@v2
         with:
-          registry: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}
+          registry: ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}
           username: ${{ secrets.DBD_ARTIFACTORY_DOCKER_USER }}
           password: ${{ secrets.DBD_ARTIFACTORY_DOCKER_PASSWORD }}
       - name: Build and push artifact
@@ -45,10 +45,10 @@ jobs:
           IMAGE_TAG: ${{ steps.tag.outputs.lowercase }}      
           DBD_ARTIFACTORY_DOCKER_USER: ${{ secrets.DBD_ARTIFACTORY_DOCKER_USER }}
           DBD_ARTIFACTORY_DOCKER_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_DOCKER_PASSWORD }}
-          DBD_ARTIFACTORY_ADDRESS: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}
+          DBD_ARTIFACTORY_DOCKER_ADDRESS: ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}
           SERVICE_NAME: ${{ inputs.SERVICE_NAME }}
         uses: docker/build-push-action@v3
         with:
           context: .
-          tags: ${{ secrets.DBD_ARTIFACTORY_ADDRESS }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          tags: ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
           push: true
