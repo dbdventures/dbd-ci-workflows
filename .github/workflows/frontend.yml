@@ -22,21 +22,21 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: xom9ikk/split@v1
-        id: branch
-        with:
-          string: ${{ inputs.SERVICE_NAME }}
-          separator: _
-          limit: -1
-      - uses: xom9ikk/split@v1
         id: service
         with:
-          string: ${{ steps.service.outputs._1 }}
+          string: ${{ inputs.SERVICE_NAME }}
           separator: /
+          limit: -1
+      - uses: xom9ikk/split@v1
+        id: branch
+        with:
+          string: ${{ inputs.SERVICE_VERSION }}
+          separator: _
           limit: -1
       - uses: ASzc/change-string-case-action@v2
         id: tag
         with:
-          string: ${{ inputs.SERVICE_VERSION }}
+          string: ${{ steps.branch.outputs._4 }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to Artifactory
@@ -48,7 +48,7 @@ jobs:
           password: ${{ secrets.DBD_ARTIFACTORY_DOCKER_PASSWORD }}
       - name: Build and push artifact
         env:
-          IMAGE_NAME: ${{ steps.service.outputs._2 }}
+          IMAGE_NAME: ${{ steps.service.outputs._1 }}
           IMAGE_TAG: ${{ steps.tag.outputs.lowercase }}      
           DBD_ARTIFACTORY_DOCKER_USER: ${{ secrets.DBD_ARTIFACTORY_DOCKER_USER }}
           DBD_ARTIFACTORY_DOCKER_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_DOCKER_PASSWORD }}
