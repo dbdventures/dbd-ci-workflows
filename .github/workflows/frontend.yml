@@ -1,0 +1,54 @@
+name: Frontend Workflow
+
+on:
+  workflow_call:
+    inputs:
+      SERVICE_NAME:
+        type: string
+      SERVICE_VERSION:
+        type: string
+    secrets:
+      DBD_ARTIFACTORY_DOCKER_USER:
+        required: true
+      DBD_ARTIFACTORY_DOCKER_PASSWORD:
+        required: true
+      DBD_ARTIFACTORY_DOCKER_ADDRESS:
+        required: true
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: xom9ikk/split@v1
+        id: service
+        with:
+          string: ${{ inputs.SERVICE_NAME }}
+          separator: /
+          limit: -1
+      - uses: ASzc/change-string-case-action@v2
+        id: tag
+        with:
+          string: ${{ inputs.SERVICE_VERSION }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to Artifactory
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}
+          username: ${{ secrets.DBD_ARTIFACTORY_DOCKER_USER }}
+          password: ${{ secrets.DBD_ARTIFACTORY_DOCKER_PASSWORD }}
+      - name: Build and push artifact
+        env:
+          IMAGE_NAME: ${{ steps.service.outputs._1 }}
+          IMAGE_TAG: ${{ steps.tag.outputs.lowercase }}      
+          DBD_ARTIFACTORY_DOCKER_USER: ${{ secrets.DBD_ARTIFACTORY_DOCKER_USER }}
+          DBD_ARTIFACTORY_DOCKER_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_DOCKER_PASSWORD }}
+          DBD_ARTIFACTORY_DOCKER_ADDRESS: ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          tags: ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          push: ${{ github.event_name != 'pull_request' }}
