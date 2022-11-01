@@ -15,12 +15,12 @@ jobs:
   pr-check:
     name: 'PR Title Checker'
     runs-on: ubuntu-latest         
-  
+
     steps:
-      - uses: deepakputhraya/action-pr-title@master
+      - uses: deepakputhraya/action-pr-title@master@v1.0.2
         with:
           regex: '^\[((DBD)\-[0-9]+|[HOTFIX\-[0-9]+[0-9\.]*[0-9]+)\].*' # Regex the title should match.
-      - uses: deepakputhraya/action-branch-name@master
+      - uses: deepakputhraya/action-branch-name@master@v1.0.2
         if: github.base_ref == 'develop'
         with:
           regex: '^(feature\/(DBD)\-[0-9]+[\-_]|(hotfix|release)\/[0-9]+[0-9\.]*[0-9]+|main).*' # Regex the branch name should match.
@@ -28,6 +28,7 @@ jobs:
   publish-artifacts:
     name: Publish Artifacts
     runs-on: ubuntu-latest
+    needs: [ "pr-check"]
 
     steps:
       - uses: actions/checkout@v1
