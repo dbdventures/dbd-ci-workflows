@@ -22,9 +22,15 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: xom9ikk/split@v1
-        id: service
+        id: branch
         with:
           string: ${{ inputs.SERVICE_NAME }}
+          separator: _
+          limit: -1
+      - uses: xom9ikk/split@v1
+        id: service
+        with:
+          string: ${{ steps.service.outputs._1 }}
           separator: /
           limit: -1
       - uses: ASzc/change-string-case-action@v2
@@ -42,13 +48,16 @@ jobs:
           password: ${{ secrets.DBD_ARTIFACTORY_DOCKER_PASSWORD }}
       - name: Build and push artifact
         env:
-          IMAGE_NAME: ${{ steps.service.outputs._1 }}
+          IMAGE_NAME: ${{ steps.service.outputs._2 }}
           IMAGE_TAG: ${{ steps.tag.outputs.lowercase }}      
           DBD_ARTIFACTORY_DOCKER_USER: ${{ secrets.DBD_ARTIFACTORY_DOCKER_USER }}
           DBD_ARTIFACTORY_DOCKER_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_DOCKER_PASSWORD }}
           DBD_ARTIFACTORY_DOCKER_ADDRESS: ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          tags: ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          push: ${{ github.event_name != 'pull_request' }}
+        run: |
+          echo IMAGE_NAME ${{ env.IMAGE_NAME }}
+          echo IMAGE_TAG ${{ env.IMAGE_TAG }}
+        # uses: docker/build-push-action@v3
+        # with:
+        #   context: .
+        #   tags: ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        #   push: ${{ github.event_name != 'pull_request' }}
