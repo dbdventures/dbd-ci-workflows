@@ -27,22 +27,6 @@ jobs:
           string: ${{ inputs.SERVICE_NAME }}
           separator: /
           limit: -1
-      - uses: xom9ikk/split@v1
-        id: branch
-        with:
-          string: ${{ inputs.SERVICE_VERSION }}
-          separator: _
-          limit: -1
-      - uses: xom9ikk/split@v1
-        id: raw
-        with:
-          string: ${{ steps.branch.outputs._0 }}
-          separator: /
-          limit: -1
-      - uses: ASzc/change-string-case-action@v2
-        id: tag
-        with:
-          string: ${{ steps.raw.outputs._1 }}
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Login to Artifactory
@@ -55,12 +39,14 @@ jobs:
       - name: Build and push artifact
         env:
           IMAGE_NAME: ${{ steps.service.outputs._1 }}
-          IMAGE_TAG: ${{ steps.tag.outputs.lowercase }}      
+          IMAGE_TAG: ${{ inputs.SERVICE_VERSION }}      
           DBD_ARTIFACTORY_DOCKER_USER: ${{ secrets.DBD_ARTIFACTORY_DOCKER_USER }}
           DBD_ARTIFACTORY_DOCKER_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_DOCKER_PASSWORD }}
           DBD_ARTIFACTORY_DOCKER_ADDRESS: ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}
-        uses: docker/build-push-action@v3
-        with:
-          context: .
-          tags: ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-          push: ${{ github.event_name != 'pull_request' }}
+        run: |
+          echo Build ${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        # uses: docker/build-push-action@v3
+        # with:
+        #   context: .
+        #   tags: ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+        #   push: ${{ github.event_name != 'pull_request' }}
