@@ -35,6 +35,7 @@ jobs:
         run: ./gradlew test sonarqube
 
   build:
+    if: contains(github.ref,'main')
     name: build
     runs-on: ubuntu-latest
     needs: [ "test"]
@@ -54,6 +55,7 @@ jobs:
         run: ./gradlew docker
 
   publish-artifacts:
+    if: contains(github.ref,'main')
     name: Publish Artifacts
     runs-on: ubuntu-latest
     needs: [ "build"]
@@ -73,6 +75,7 @@ jobs:
         run: ./gradlew artifactoryPublish    
                 
   deploy:
+    if: contains(github.ref,'main')
     name: deploy
     runs-on: ubuntu-latest
     needs: [ "publish-artifacts"]
