@@ -6,11 +6,14 @@ on:
       JAVA_VERSION:
         type: string
         default: "17.0.1"
+      DOCKER_REGISTRY:
+        type: string
+        default: "https://dbd.jfrog.io/artifactory/dbd-docker/"
     secrets:
       DBD_ARTIFACTORY_USER:
         required: true
       DBD_ARTIFACTORY_PASSWORD:
-        required: true       
+        required: true
       SONAR_TOKEN:
         required: true
 jobs:
@@ -26,70 +29,23 @@ jobs:
         with:
           java-version: ${{ inputs.JAVA_VERSION }}
       - name: Change wrapper permissions
-        run: chmod +x ./gradlew   
-      - name: test and sonarqube        
-        env:          
+        run: chmod +x ./gradlew
+      - name: test --parallel and sonarqube
+        env:
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
-          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}  
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}  
+          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew test sonarqube
-
-  build:
-    if: contains(github.ref,'main')
-    name: build
-    runs-on: ubuntu-latest
-    needs: [ "test"]
-
-    steps:
-      - uses: actions/checkout@v1
-      - name: Set up JDK
-        uses: actions/setup-java@v1
+      - name: Login to Docker Registry
+        if: contains(github.ref,'main')
+        uses: docker/login-action@v2
         with:
-          java-version: ${{ inputs.JAVA_VERSION }}
-      - name: Change wrapper permissions
-        run: chmod +x ./gradlew   
-      - name: build
-        env:          
+          registry: ${{ inputs.DOCKER_REGISTRY }}
+          username: ${{ secrets.DBD_ARTIFACTORY_USER }}
+          password: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
+      - name: Build & Publish to Artifactory
+        if: contains(github.ref,'main')
+        env:
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
-          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}  
-        run: ./gradlew docker
-
-  publish-artifacts:
-    if: contains(github.ref,'main')
-    name: Publish Artifacts
-    runs-on: ubuntu-latest
-    needs: [ "build"]
-
-    steps:
-      - uses: actions/checkout@v1
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ inputs.JAVA_VERSION }}
-      - name: Change wrapper permissions
-        run: chmod +x ./gradlew          
-      - name: publish 
-        env:          
-          DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
-          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}  
-        run: ./gradlew artifactoryPublish    
-                
-  deploy:
-    if: contains(github.ref,'main')
-    name: deploy
-    runs-on: ubuntu-latest
-    needs: [ "publish-artifacts"]
-
-    steps:
-      - uses: actions/checkout@v1
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ inputs.JAVA_VERSION }}
-      - name: Change wrapper permissions
-        run: chmod +x ./gradlew          
-      - name: deploy 
-        env:          
-          DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
-          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}  
-        run: echo "Here your should be your deployment script"            
+          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
+        run: ./gradlew dockerTagsPush
