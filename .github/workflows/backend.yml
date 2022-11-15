@@ -8,7 +8,7 @@ on:
         default: "17.0.1"
       DOCKER_REGISTRY:
         type: string
-        default: "https://dbd.jfrog.io/artifactory/dbd-docker/"
+        default: "https://dbd.jfrog.io"
     secrets:
       DBD_ARTIFACTORY_USER:
         required: true
