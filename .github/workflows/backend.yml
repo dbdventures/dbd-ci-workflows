@@ -44,6 +44,8 @@ on:
         required: true
       HELM_REPOSITORY_PASSWORD:
         required: true
+      ACTIONS_SSH_KEY:
+        required: true
 jobs:
 
   test:
