@@ -6,12 +6,43 @@ on:
       JAVA_VERSION:
         type: string
         default: "17.0.1"
+      GITHUB_ORG:
+        type: string
+        required: true
+      REMOTE_REPOSITORY:
+        type: string
+        required: true
+      REMOTE_BRANCH:
+        type: string
+        default: "main"
+      HELM_REPOSITORY_NAME:
+        type: string
+        required: true 
+      HELM_REPOSITORY_URL:
+        type: string
+        required: true 
+      HELM_CHART:
+        type: string
+        required: true  
+      HELM_VALUES:
+        type: string
+        required: true
+      HELM_NAMESPACE:
+        type: string
+        required: true
+      HELM_ROLLOUT_TIMEOUT:
+        default: "600s"
+        type: string
     secrets:
       DBD_ARTIFACTORY_USER:
         required: true
       DBD_ARTIFACTORY_PASSWORD:
         required: true       
       SONAR_TOKEN:
+        required: true
+      HELM_REPOSITORY_USERNAME:
+        required: true
+      HELM_REPOSITORY_PASSWORD:
         required: true
 jobs:
 
@@ -77,19 +108,29 @@ jobs:
   deploy:
     if: contains(github.ref,'main')
     name: deploy
-    runs-on: ubuntu-latest
-    needs: [ "publish-artifacts"]
+    runs-on: demo-runner
+    needs: [ "build"]
 
     steps:
-      - uses: actions/checkout@v1
-      - name: Set up JDK
-        uses: actions/setup-java@v1
+      - uses: actions/checkout@v2
         with:
-          java-version: ${{ inputs.JAVA_VERSION }}
-      - name: Change wrapper permissions
-        run: chmod +x ./gradlew          
-      - name: deploy 
-        env:          
-          DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
-          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}  
-        run: echo "Here your should be your deployment script"            
+          repository: '${{ inputs.GITHUB_ORG }}/${{ inputs.REMOTE_REPOSITORY }}'
+          path: ${{ inputs.REMOTE_REPOSITORY }}
+          ref: ${{ inputs.REMOTE_BRANCH }}
+          ssh-key: '${{ secrets.ACTIONS_SSH_KEY }}'
+
+      - name: Install prerequisites 
+        run: |
+           curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.25.0/bin/linux/amd64/kubectl && chmod +x ./kubectl && sudo mv ./kubectl /usr/local/bin/
+           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && chmod 700 get_helm.sh && ./get_helm.sh
+           kubectl version --client
+           helm version
+
+      - name: 'Helm Registry Login'
+        run: |
+          helm repo add ${{ inputs.HELM_REPOSITORY_NAME }} ${{ inputs.HELM_REPOSITORY_URL }} --username ${{ secrets.HELM_REPOSITORY_USERNAME }} --password ${{ secrets.HELM_REPOSITORY_PASSWORD }}
+          helm repo update
+
+      - name: 'Helm Release' 
+        run: |
+          helm -n ${{ inputs.HELM_NAMESPACE }} upgrade --install ${{ github.event.repository.name }} -f ${{ inputs.REMOTE_REPOSITORY }}/${{ inputs.HELM_VALUES }} ${{ inputs.HELM_CHART }}     
