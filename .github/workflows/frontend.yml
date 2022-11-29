@@ -7,12 +7,45 @@ on:
         type: string
       SERVICE_VERSION:
         type: string
+      GITHUB_ORG:
+        type: string
+        required: true
+      REMOTE_REPOSITORY:
+        type: string
+        required: true
+      REMOTE_BRANCH:
+        type: string
+        default: "main"
+      HELM_REPOSITORY_NAME:
+        type: string
+        required: true 
+      HELM_REPOSITORY_URL:
+        type: string
+        required: true 
+      HELM_CHART:
+        type: string
+        required: true  
+      HELM_VALUES:
+        type: string
+        required: true
+      HELM_NAMESPACE:
+        type: string
+        required: true
+      HELM_ROLLOUT_TIMEOUT:
+        default: "600s"
+        type: string
     secrets:
       DBD_ARTIFACTORY_DOCKER_USER:
         required: true
       DBD_ARTIFACTORY_DOCKER_PASSWORD:
         required: true
       DBD_ARTIFACTORY_DOCKER_ADDRESS:
+        required: true
+      HELM_REPOSITORY_USERNAME:
+        required: true
+      HELM_REPOSITORY_PASSWORD:
+        required: true
+      ACTIONS_SSH_KEY:
         required: true
 
 jobs:
@@ -38,3 +71,33 @@ jobs:
           docker login ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }} -u ${{ secrets.DBD_ARTIFACTORY_DOCKER_USER }} -p ${{ secrets.DBD_ARTIFACTORY_DOCKER_PASSWORD }}
           docker build -t ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
           docker push ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
+  deploy:
+    if: contains(github.ref,'main')
+    name: deploy
+    runs-on: demo-runner
+    needs: [ "build"]
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          repository: '${{ inputs.GITHUB_ORG }}/${{ inputs.REMOTE_REPOSITORY }}'
+          path: ${{ inputs.REMOTE_REPOSITORY }}
+          ref: ${{ inputs.REMOTE_BRANCH }}
+          ssh-key: '${{ secrets.ACTIONS_SSH_KEY }}'
+
+      - name: Install prerequisites 
+        run: |
+           curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.25.0/bin/linux/amd64/kubectl && chmod +x ./kubectl && sudo mv ./kubectl /usr/local/bin/
+           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && chmod 700 get_helm.sh && ./get_helm.sh
+           kubectl version --client
+           helm version
+
+      - name: 'Helm Registry Login'
+        run: |
+          helm repo add ${{ inputs.HELM_REPOSITORY_NAME }} ${{ inputs.HELM_REPOSITORY_URL }} --username ${{ secrets.HELM_REPOSITORY_USERNAME }} --password ${{ secrets.HELM_REPOSITORY_PASSWORD }}
+          helm repo update
+
+      - name: 'Helm Release' 
+        run: |
+          helm -n ${{ inputs.HELM_NAMESPACE }} upgrade --install ${{ github.event.repository.name }} -f ${{ inputs.REMOTE_REPOSITORY }}/${{ inputs.HELM_VALUES }} ${{ inputs.HELM_CHART }}
