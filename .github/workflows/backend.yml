@@ -54,12 +54,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
           java-version: ${{ inputs.JAVA_VERSION }}
+
       - name: Change wrapper permissions
         run: chmod +x ./gradlew   
+
       - name: test and sonarqube        
         env:          
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
@@ -75,17 +78,27 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+
+      - name: Get commit version
+        id: commit
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
           java-version: ${{ inputs.JAVA_VERSION }}
+
       - name: Change wrapper permissions
         run: chmod +x ./gradlew   
+
       - name: build
         env:          
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
           DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}  
         run: ./gradlew docker
+
+    outputs:
+      commit: ${{ steps.commit.outputs.sha_short }}
 
   publish-artifacts:
     if: contains(github.ref,'main')
@@ -95,12 +108,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
           java-version: ${{ inputs.JAVA_VERSION }}
+
       - name: Change wrapper permissions
-        run: chmod +x ./gradlew          
+        run: chmod +x ./gradlew   
+
       - name: publish 
         env:          
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
@@ -134,5 +150,7 @@ jobs:
           helm repo update
 
       - name: 'Helm Release' 
+        env:
+          GITHUB_SHA: ${{ needs.build.outputs.commit }}
         run: |
-          helm -n ${{ inputs.HELM_NAMESPACE }} upgrade --install ${{ github.event.repository.name }} -f ${{ inputs.REMOTE_REPOSITORY }}/${{ inputs.HELM_VALUES }} ${{ inputs.HELM_CHART }}     
+          helm -n ${{ inputs.HELM_NAMESPACE }} upgrade --install ${{ github.event.repository.name }} -f ${{ inputs.REMOTE_REPOSITORY }}/${{ inputs.HELM_VALUES }} --set-string podLabels.git-sha=${GITHUB_SHA} ${{ inputs.HELM_CHART }}     
