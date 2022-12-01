@@ -54,12 +54,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+
+      - name: Get commit version
+        id: commit
+        run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+
       - uses: xom9ikk/split@v1
         id: service
         with:
           string: ${{ inputs.SERVICE_NAME }}
           separator: /
           limit: -1
+
       - name: Build and push artifact
         env:
           IMAGE_NAME: ${{ steps.service.outputs._1 }}
@@ -72,6 +78,9 @@ jobs:
           docker build -t ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }} .
           docker push ${{ secrets.DBD_ARTIFACTORY_DOCKER_ADDRESS }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
 
+    outputs:
+      commit: ${{ steps.commit.outputs.sha_short }}
+
   deploy:
     if: contains(github.ref,'main')
     name: deploy
@@ -79,6 +88,7 @@ jobs:
     needs: [ "build"]
 
     steps:
+
       - uses: actions/checkout@v2
         with:
           repository: '${{ inputs.GITHUB_ORG }}/${{ inputs.REMOTE_REPOSITORY }}'
@@ -99,5 +109,7 @@ jobs:
           helm repo update
 
       - name: 'Helm Release' 
+        env:
+          GITHUB_SHA: ${{ needs.build.outputs.commit }}
         run: |
-          helm -n ${{ inputs.HELM_NAMESPACE }} upgrade --install ${{ github.event.repository.name }} -f ${{ inputs.REMOTE_REPOSITORY }}/${{ inputs.HELM_VALUES }} ${{ inputs.HELM_CHART }}
+          helm -n ${{ inputs.HELM_NAMESPACE }} upgrade --install ${{ github.event.repository.name }} -f ${{ inputs.REMOTE_REPOSITORY }}/${{ inputs.HELM_VALUES }} --set-string podLabels.git-sha=${GITHUB_SHA} ${{ inputs.HELM_CHART }}
