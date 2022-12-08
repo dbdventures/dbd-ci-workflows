@@ -3,6 +3,9 @@ name: Backend Workflow
 on:
   workflow_call:
     inputs:
+      wf:
+        type: string
+        default: 'PR'
       JAVA_VERSION:
         type: string
         default: "17.0.1"
@@ -73,7 +76,7 @@ jobs:
       - name: analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew sonarqube -Dsonar.scm.revision=${{ github.sha }} -Dsonar.pullrequest.base=${{ github.base_ref }} -Dsonar.pullrequest.branch=${{ github.ref }} -Dsonar.pullrequest.key=DBD-271 -Dsonar.pullrequest.provider=GitHub -Dsonar.pullrequest.github.repository=${{ github.repository }}
+        run: ./gradlew sonarqube -Dsonar.scm.revision=${{ github.sha }} -Dsonar.pullrequest.base=${{ github.base_ref }} -Dsonar.pullrequest.branch=${{ github.ref }} -Dsonar.pullrequest.key=${{ github.event.pull_request.number }} -Dsonar.pullrequest.provider=GitHub -Dsonar.pullrequest.github.repository=${{ github.repository }}
 
   build:
     if: contains(github.ref,'main')
