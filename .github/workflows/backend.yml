@@ -73,7 +73,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew test
 
-      - name: Analyze
+      - name: Analyze Code
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
