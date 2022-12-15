@@ -73,6 +73,15 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: ./gradlew test
 
+      - name: Report Tests
+        uses: dorny/test-reporter@v1.6.0
+        if: success() || failure()
+        with:
+          name: Tests
+          path: target/reports/tests/*.html
+          reporter: java-junit
+          fail-on-error: true
+
       - name: Analyze Code
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
