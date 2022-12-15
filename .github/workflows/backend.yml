@@ -80,6 +80,7 @@ jobs:
           name: Tests
           path: '**/build/test-results/test/TEST-*.xml'
           reporter: java-junit
+          list-suites: 'failed'
           fail-on-error: true
 
       - name: Analyze Code
