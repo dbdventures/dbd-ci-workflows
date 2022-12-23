@@ -116,10 +116,12 @@ jobs:
 
       - name: build
         env:
+          DBD_ARTIFACTORY_URL: ${{ secrets.DBD_ARTIFACTORY_URL }}
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
           DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
-        run: ./gradlew docker
-
+        run: |
+          docker login ${{ secrets.DBD_ARTIFACTORY_URL }} -u ${{ secrets.DBD_ARTIFACTORY_USER }} -p ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
+          .\gradlew dockerTagsPush
     outputs:
       commit: ${{ steps.commit.outputs.sha_short }}
 
