@@ -37,6 +37,8 @@ on:
         default: "500s"
         type: string
     secrets:
+      DBD_ARTIFACTORY_URL:
+        required: true
       DBD_ARTIFACTORY_USER:
         required: true
       DBD_ARTIFACTORY_PASSWORD:
