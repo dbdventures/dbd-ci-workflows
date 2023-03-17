@@ -132,6 +132,9 @@ jobs:
 
       - name: build
         env:
+          DBD_ARTIFACTORY_URL: ${{ secrets.DBD_ARTIFACTORY_URL }}
+          DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
+          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
           DBD_DOCKER_REGISTRY: ${{ inputs.DBD_DOCKER_REGISTRY }}
         run: |
           aws ecr get-login-password | docker login --username AWS --password-stdin ${DBD_DOCKER_REGISTRY}
