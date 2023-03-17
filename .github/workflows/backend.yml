@@ -124,7 +124,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Configure aws cli
-      - uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           aws-access-key-id: ${{ secrets.DBD_ECR_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DBD_ECR_AWS_SECRET_ACCESS_KEY }}
