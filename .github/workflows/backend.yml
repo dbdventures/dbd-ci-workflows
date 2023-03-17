@@ -43,6 +43,8 @@ on:
         required: true
       DBD_ARTIFACTORY_PASSWORD:
         required: true
+      DBD_DOCKER_REGISTRY:
+        required: true
       SONAR_TOKEN:
         required: true
       HELM_REPOSITORY_USERNAME:
@@ -118,11 +120,9 @@ jobs:
 
       - name: build
         env:
-          DBD_ARTIFACTORY_URL: ${{ secrets.DBD_ARTIFACTORY_URL }}
-          DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
-          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
+          DBD_ARTIFACTORY_URL: ${{ secrets.DBD_DOCKER_REGISTRY }}
         run: |
-          docker login ${{ secrets.DBD_ARTIFACTORY_URL }} -u ${{ secrets.DBD_ARTIFACTORY_USER }} -p ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
+          - aws ecr get-login-password | docker login --username AWS --password-stdin ${DBD_DOCKER_REGISTRY}
           ./gradlew dockerTagsPush
     outputs:
       commit: ${{ steps.commit.outputs.sha_short }}
@@ -150,34 +150,36 @@ jobs:
           DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
         run: ./gradlew artifactoryPublish
 
-  deploy:
-    if: contains(github.ref,'main')
-    name: deploy
-    runs-on: demo-runner
-    needs: [ "build"]
+  #deploy:
+  #  if: contains(github.ref,'main')
+  #  name: deploy
+  #  runs-on: demo-runner
+  #  needs: [ "build"]
+#
+  #  steps:
+  #    - uses: actions/checkout@v2
+  #      with:
+  #        repository: '${{ inputs.GITHUB_ORG }}/${{ inputs.REMOTE_REPOSITORY }}'
+  #        path: ${{ inputs.REMOTE_REPOSITORY }}
+  #        ref: ${{ inputs.REMOTE_BRANCH }}
+  #        ssh-key: '${{ secrets.ACTIONS_SSH_KEY }}'
+#
+   #   - name: Install prerequisites
+   #     run: |
+   #        curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.25.0/bin/linux/amd64/kubectl && chmod +x ./kubectl && sudo mv ./kubectl /usr/local/bin/
+   #        curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && chmod 700 get_helm.sh && ./get_helm.sh
+   #        kubectl version --client
+ #          helm version
+#
+   #   - name: 'Helm Registry Login'
+   #     run: |
+   #       helm repo add ${{ inputs.HELM_REPOSITORY_NAME }} ${{ inputs.HELM_REPOSITORY_URL }} --username ${{ secrets.HELM_REPOSITORY_USERNAME }} --password ${{ secrets.HELM_REPOSITORY_PASSWORD }}
+   #       helm repo update
+#
+   #   - name: 'Helm Release'
+ #       env:
+    #      GITHUB_SHA: ${{ needs.build.outputs.commit }}
+    #    run: |
+    #      helm -n ${{ inputs.HELM_NAMESPACE }} upgrade --install ${{ github.event.repository.name }} -f ${{ inputs.REMOTE_REPOSITORY }}/${{ inputs.HELM_VALUES }} --set-string podLabels.git-sha=${GITHUB_SHA} --wait "--timeout=${{ inputs.HELM_ROLLOUT_TIMEOUT }}" ${{ inputs.HELM_CHART }}
 
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          repository: '${{ inputs.GITHUB_ORG }}/${{ inputs.REMOTE_REPOSITORY }}'
-          path: ${{ inputs.REMOTE_REPOSITORY }}
-          ref: ${{ inputs.REMOTE_BRANCH }}
-          ssh-key: '${{ secrets.ACTIONS_SSH_KEY }}'
 
-      - name: Install prerequisites
-        run: |
-           curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.25.0/bin/linux/amd64/kubectl && chmod +x ./kubectl && sudo mv ./kubectl /usr/local/bin/
-           curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 && chmod 700 get_helm.sh && ./get_helm.sh
-           kubectl version --client
-           helm version
-
-      - name: 'Helm Registry Login'
-        run: |
-          helm repo add ${{ inputs.HELM_REPOSITORY_NAME }} ${{ inputs.HELM_REPOSITORY_URL }} --username ${{ secrets.HELM_REPOSITORY_USERNAME }} --password ${{ secrets.HELM_REPOSITORY_PASSWORD }}
-          helm repo update
-
-      - name: 'Helm Release'
-        env:
-          GITHUB_SHA: ${{ needs.build.outputs.commit }}
-        run: |
-          helm -n ${{ inputs.HELM_NAMESPACE }} upgrade --install ${{ github.event.repository.name }} -f ${{ inputs.REMOTE_REPOSITORY }}/${{ inputs.HELM_VALUES }} --set-string podLabels.git-sha=${GITHUB_SHA} --wait "--timeout=${{ inputs.HELM_ROLLOUT_TIMEOUT }}" ${{ inputs.HELM_CHART }}     
