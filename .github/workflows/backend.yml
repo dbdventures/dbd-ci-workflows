@@ -36,14 +36,15 @@ on:
       HELM_ROLLOUT_TIMEOUT:
         default: "500s"
         type: string
+      DBD_DOCKER_REGISTRY:
+        type: string
+        required: true
     secrets:
       DBD_ARTIFACTORY_URL:
         required: true
       DBD_ARTIFACTORY_USER:
         required: true
       DBD_ARTIFACTORY_PASSWORD:
-        required: true
-      DBD_DOCKER_REGISTRY:
         required: true
       SONAR_TOKEN:
         required: true
