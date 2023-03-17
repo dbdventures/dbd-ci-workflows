@@ -54,6 +54,10 @@ on:
         required: true
       ACTIONS_SSH_KEY:
         required: true
+      DBD_ECR_AWS_ACCESS_KEY_ID:
+        required: true
+      DBD_ECR_AWS_SECRET_ACCESS_KEY:
+        required: true
 jobs:
 
   test:
@@ -122,6 +126,13 @@ jobs:
       - name: build
         env:
           DBD_DOCKER_REGISTRY: ${{ inputs.DBD_DOCKER_REGISTRY }}
+          DBD_ECR_AWS_ACCESS_KEY_ID: ${{ secrets.DBD_ECR_AWS_ACCESS_KEY_ID }}
+          DBD_ECR_AWS_SECRET_ACCESS_KEY: ${{ secrets.DBD_ECR_AWS_SECRET_ACCESS_KEY }}
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DBD_ECR_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DBD_ECR_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
         run: |
           - aws ecr get-login-password | docker login --username AWS --password-stdin ${DBD_DOCKER_REGISTRY}
           ./gradlew dockerTagsPush
