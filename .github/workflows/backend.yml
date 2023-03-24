@@ -42,6 +42,9 @@ on:
       DBD_DOCKER_IMAGE_TAG:
         type: string
         required: true
+      DBD_QOVERY_CONTAINER_ID:
+        type: string
+        required: true
     secrets:
       DBD_ARTIFACTORY_URL:
         required: true
@@ -61,7 +64,7 @@ on:
         required: true
       DBD_ECR_AWS_SECRET_ACCESS_KEY:
         required: true
-      DBD_QOVERY_ACCESS_TOKEN:
+      DBD_QOVERY_API_ACCESS_TOKEN:
         required: true
 jobs:
 
@@ -175,7 +178,7 @@ jobs:
   deploy:
     if: contains(github.ref,'main')
     name: deploy
-    runs-on: demo-runner
+    runs-on: ubuntu-latest
     needs: [ "build"]
 
     steps:
@@ -183,8 +186,13 @@ jobs:
       - name: deploy
         env:
           DBD_DOCKER_IMAGE_TAG: ${{ inputs.DBD_DOCKER_IMAGE_TAG }}
+          DBD_QOVERY_API_ACCESS_TOKEN: ${{ secrets.DBD_QOVERY_API_ACCESS_TOKEN }}
+          DBD_QOVERY_CONTAINER_ID: ${{ inputs.DBD_QOVERY_CONTAINER_ID }}
         run: |
           echo $DBD_DOCKER_IMAGE_TAG
+          echo $DBD_QOVERY_CONTAINER_ID
+          curl --location --request POST 'https://api.qovery.com/container/$DBD_QOVERY_CONTAINER_ID/redeploy' \
+          --header 'Authorization: Token $DBD_QOVERY_API_ACCESS_TOKEN'
 
   #deploy:
   #  if: contains(github.ref,'main')
