@@ -61,6 +61,8 @@ on:
         required: true
       DBD_ECR_AWS_SECRET_ACCESS_KEY:
         required: true
+      DBD_QOVERY_ACCESS_TOKEN:
+        required: true
 jobs:
 
   test:
@@ -143,7 +145,7 @@ jobs:
         run: |
           echo $DBD_DOCKER_IMAGE_TAG
           aws ecr get-login-password | docker login --username AWS --password-stdin ${DBD_DOCKER_REGISTRY}
-          ./gradlew dockerPushSha
+          ./gradlew dockerTagsPush
     outputs:
       commit: ${{ steps.commit.outputs.sha_short }}
 
