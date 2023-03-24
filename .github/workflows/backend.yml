@@ -141,7 +141,7 @@ jobs:
           DBD_DOCKER_REGISTRY: ${{ inputs.DBD_DOCKER_REGISTRY }}
           DBD_DOCKER_IMAGE_TAG: ${{ inputs.DBD_DOCKER_IMAGE_TAG }}
         run: |
-          echo $DOCKER_IMAGE_TAG
+          echo $DBD_DOCKER_IMAGE_TAG
           aws ecr get-login-password | docker login --username AWS --password-stdin ${DBD_DOCKER_REGISTRY}
           ./gradlew dockerPushSha
     outputs:
@@ -169,6 +169,20 @@ jobs:
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
           DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
         run: ./gradlew artifactoryPublish
+
+  deploy:
+    if: contains(github.ref,'main')
+    name: deploy
+    runs-on: demo-runner
+    needs: [ "build"]
+
+    steps:
+
+      - name: deploy
+        env:
+          DBD_DOCKER_IMAGE_TAG: ${{ inputs.DBD_DOCKER_IMAGE_TAG }}
+        run: |
+          echo $DBD_DOCKER_IMAGE_TAG
 
   #deploy:
   #  if: contains(github.ref,'main')
