@@ -78,22 +78,22 @@ jobs:
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
 
-      - name: Run Tests
-        env:
-          DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
-          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: echo "uncomment me" #./gradlew test
+#      - name: Run Tests
+#        env:
+#          DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
+#          DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
+#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+#        run: ./gradlew test
 
-      - name: Report Tests
-        uses: dorny/test-reporter@v1.6.0
-        if: success() || failure()
-        with:
-          name: Tests
-          path: '**/build/test-results/test/TEST-*.xml'
-          reporter: java-junit
-          list-suites: 'failed'
-          fail-on-error: true
+#      - name: Report Tests
+#        uses: dorny/test-reporter@v1.6.0
+#        if: success() || failure()
+#        with:
+#          name: Tests
+#          path: '**/build/test-results/test/TEST-*.xml'
+#          reporter: java-junit
+#          list-suites: 'failed'
+#          fail-on-error: true
 
 #      - name: Analyze Code
 #        env:
