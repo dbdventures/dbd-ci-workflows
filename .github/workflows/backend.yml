@@ -136,9 +136,10 @@ jobs:
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
           DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
           DBD_DOCKER_REGISTRY: ${{ inputs.DBD_DOCKER_REGISTRY }}
+          DOCKER_IMAGE_TAG: ${{ inputs.DOCKER_IMAGE_TAG }}
         run: |
           aws ecr get-login-password | docker login --username AWS --password-stdin ${DBD_DOCKER_REGISTRY}
-          ./gradlew dockerTagsPush
+          ./gradlew dockerPushSha
     outputs:
       commit: ${{ steps.commit.outputs.sha_short }}
 
