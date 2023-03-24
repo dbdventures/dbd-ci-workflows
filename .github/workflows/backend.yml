@@ -39,6 +39,9 @@ on:
       DBD_DOCKER_REGISTRY:
         type: string
         required: true
+      DOCKER_IMAGE_TAG:
+        type: string
+        required: true
     secrets:
       DBD_ARTIFACTORY_URL:
         required: true
