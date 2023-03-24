@@ -39,7 +39,7 @@ on:
       DBD_DOCKER_REGISTRY:
         type: string
         required: true
-      DOCKER_IMAGE_TAG:
+      DBD_DOCKER_IMAGE_TAG:
         type: string
         required: true
     secrets:
@@ -139,7 +139,7 @@ jobs:
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
           DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
           DBD_DOCKER_REGISTRY: ${{ inputs.DBD_DOCKER_REGISTRY }}
-          DOCKER_IMAGE_TAG: ${{ inputs.DOCKER_IMAGE_TAG }}
+          DBD_DOCKER_IMAGE_TAG: ${{ inputs.DBD_DOCKER_IMAGE_TAG }}
         run: |
           echo $DOCKER_IMAGE_TAG
           aws ecr get-login-password | docker login --username AWS --password-stdin ${DBD_DOCKER_REGISTRY}
