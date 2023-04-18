@@ -45,6 +45,9 @@ on:
       DBD_QOVERY_CONTAINER_ID:
         type: string
         required: true
+      DBD_QOVERY_APPLICATION_NAME:
+        type: string
+        required: true
     secrets:
       DBD_ARTIFACTORY_URL:
         required: true
