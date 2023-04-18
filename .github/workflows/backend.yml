@@ -190,7 +190,7 @@ jobs:
     steps:
       - name: Add SHORT_SHA env property with commit short sha
         id: get-sha
-        run: echo "SHORT_SHA=`echo ${{github.sha}} | cut -c1-8`" >> $GITHUB_OUTPUT
+        run: echo "SHORT_SHA=`echo ${{github.sha}} | cut -c1-7`" >> $GITHUB_OUTPUT
       - name: Deploy with Qovery
         uses: nick-fields/retry@v2
         env:
