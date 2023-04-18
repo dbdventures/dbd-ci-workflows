@@ -67,18 +67,18 @@ on:
       DBD_QOVERY_API_ACCESS_TOKEN:
         required: true
 jobs:
-
   test:
     name: test
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
       - name: Setup JDK
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: ${{ inputs.JAVA_VERSION }}
+          distribution: 'zulu'
 
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
@@ -117,22 +117,23 @@ jobs:
     needs: [ "test"]
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
       - name: Get commit version
         id: commit
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
 
       - name: Set up JDK
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: ${{ inputs.JAVA_VERSION }}
+          distribution: 'zulu'
 
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.DBD_ECR_AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.DBD_ECR_AWS_SECRET_ACCESS_KEY }}
@@ -159,12 +160,13 @@ jobs:
     needs: [ "build"]
 
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
       - name: Set up JDK
-        uses: actions/setup-java@v1
+        uses: actions/setup-java@v3
         with:
           java-version: ${{ inputs.JAVA_VERSION }}
+          distribution: 'zulu'
 
       - name: Change wrapper permissions
         run: chmod +x ./gradlew
@@ -174,25 +176,6 @@ jobs:
           DBD_ARTIFACTORY_USER: ${{ secrets.DBD_ARTIFACTORY_USER }}
           DBD_ARTIFACTORY_PASSWORD: ${{ secrets.DBD_ARTIFACTORY_PASSWORD }}
         run: ./gradlew artifactoryPublish
-
-  deploy:
-    if: contains(github.ref,'main')
-    name: deploy
-    runs-on: ubuntu-latest
-    needs: [ "build"]
-
-    steps:
-
-      - name: deploy
-        env:
-          DBD_DOCKER_IMAGE_TAG: ${{ inputs.DBD_DOCKER_IMAGE_TAG }}
-          DBD_QOVERY_API_ACCESS_TOKEN: ${{ secrets.DBD_QOVERY_API_ACCESS_TOKEN }}
-          DBD_QOVERY_CONTAINER_ID: ${{ inputs.DBD_QOVERY_CONTAINER_ID }}
-        run: |
-          echo $DBD_DOCKER_IMAGE_TAG
-          echo $DBD_QOVERY_CONTAINER_ID
-          curl --location --request POST 'https://api.qovery.com/container/$DBD_QOVERY_CONTAINER_ID/redeploy' \
-          --header 'Authorization: Token $DBD_QOVERY_API_ACCESS_TOKEN'
 
   #deploy:
   #  if: contains(github.ref,'main')
