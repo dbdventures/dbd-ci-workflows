@@ -195,7 +195,6 @@ jobs:
         uses: nick-fields/retry@v2
         env:
           QOVERY_CLI_ACCESS_TOKEN: ${{ secrets.QOVERY_CLI_ACCESS_TOKEN }}
-          DBD_QOVERY_APPLICATION_NAME: ${{ inputs.DBD_QOVERY_APPLICATION_NAME }}
         with:
           max_attempts: 3
           timeout_minutes: 3
@@ -208,7 +207,7 @@ jobs:
               --organization 'DBD Ventures LLC' \
               --project 'DBD DEV Platform' \
               --environment 'qa2' \
-              --container $DBD_QOVERY_APPLICATION_NAME \
+              --container ${{ inputs.DBD_QOVERY_APPLICATION_NAME }} \
               --tag ${{ steps.get-sha.outputs.SHORT_SHA }}                
   
   
