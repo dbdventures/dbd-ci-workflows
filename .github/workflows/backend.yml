@@ -70,7 +70,7 @@ on:
       DBD_QOVERY_API_ACCESS_TOKEN:
         required: true
       QOVERY_CLI_ACCESS_TOKEN:
-        require: true
+        required: true
 jobs:
   test:
     name: test
